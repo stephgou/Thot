@@ -1,0 +1,2 @@
+MainPackage=C:\DEV\_GIT_REPOSITORY\Thot\Doc.Search.App\bin\x64\Release\Doc.Search.App_1.1.2.0_x64.appx
+SymbolPackage=C:\DEV\_GIT_REPOSITORY\Thot\Doc.Search.App\AppPackages\Doc.Search.App_1.1.2.0\Doc.Search.App_1.1.2.0_x64.appxsym

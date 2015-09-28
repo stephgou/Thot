@@ -1,0 +1,3 @@
+MainPackage=C:\DEV\_GIT_REPOSITORY\Thot\Doc.Search.App\bin\ARM\Release\Upload\Doc.Search.App_1.1.2.0_ARM.appx
+SymbolPackage=C:\DEV\_GIT_REPOSITORY\Thot\Doc.Search.App\AppPackages\Doc.Search.App_1.1.2.0\Doc.Search.App_1.1.2.0_ARM.appxsym
+ResourcePack=C:\DEV\_GIT_REPOSITORY\Thot\Doc.Search.App\_scale-100.appx

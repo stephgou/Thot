@@ -1,0 +1,85 @@
+﻿@{
+    ViewBag.Title = "Requêtes sur le service Search";
+}
+@section scripts{
+    @Scripts.Render("~/App_Scripts/index.js")
+
+    <script type="text/javascript">
+    function handleMClick(event, id, name, viewscounter)
+    {
+        window.location = 'https://searchdoc.blob.core.windows.net/public/' + name;
+
+        ViewsCounterIncrement(id, viewscounter);
+        if (event != null)
+            event.stopPropagation();
+        return true;
+    }
+
+    function ViewsCounterIncrement(id, viewsCounter) {
+
+        var url = '/counter?id=' + encodeURIComponent(id) + '&viewsCounter=' + encodeURIComponent(viewsCounter) +'&_=' + Math.random();
+        var searchCriteria = $('#tbSearch').val();
+        searchCriteria = $.trim(searchCriteria);
+
+        var ajax = $.ajax({
+            url: url,
+            type: 'GET',
+        });
+
+        ajax.done(function (data, status, xhr) {
+            search(searchCriteria);
+            return true;
+        });
+
+        ajax.fail(function (xhr, desc, err) {
+            alert('Une erreur s\'est produite. Veuillez recommencer."');
+            return false;
+        });
+    }
+    </script>
+}
+
+
+<div class="row">
+    <div class="col-md-12 col-sm-12 text-center">
+        <div class="control-group" style="margin: 0 auto; text-align:center;">
+            <form>
+                <input type="text" id="tbSearch" class="form-control" placeholder="Critère de recherche" style="margin: 0px auto; min-width: 800px;" />
+                <br />
+                <button id="btnSearch" class="btn btn-primary" data-loading-text="Searching. Please Wait...">Recherche</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-12 col-sm-12">
+        <hr />
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th style="width: 5%;color:#2a6496">Sélection</th>
+                    <th style="width: 20%;color:#2a6496">Dossier</th>
+                    <th style="width: 25%;color:#2a6496">Nom</th>
+                    <th style="width: 10%;color:#2a6496">Type</th>
+                    <th style="width: 10%;color:#2a6496">Taille</th>
+                    <th style="width: 25%;color:#2a6496">Denière mise à jour</th>
+                    <th style="width: 5%;color:#2a6496">Compteur</th>
+                </tr>
+            </thead>
+            <tbody id="tableTbody"></tbody>
+        </table>
+        <script type="text/template" id="search-results-template">
+            <% _.each(blobs, function(blob) {%>
+            <tr class="clientrow" data-id="<%= blob.Document.id %>">
+                <td><button id="btnSelect<%= blob.Document.id %>" class="btn btn-primary" 
+                            onclick="return handleMClick(event, '<%= blob.Document.id %>', '<%= blob.Document.name %>',
+                            '<%= blob.Document.downloads_counter %>')">...</button></td>
+                <td><%= blob.Document.container %></td>
+                <td><%= blob.Document.name %></td>
+                <td><%= blob.Document.blob_type %></td>
+                <td><%= sizeAsString(blob.Document.size) %></td>
+                <td><%= new Date(parseInt(blob.Document.last_modified.replace("/Date(", "").replace(")/",""), 10)) %></td>
+                <td><%= blob.Document.downloads_counter %></td>
+            </tr>
+            <%});%>
+        </script>
+    </div>
+</div>

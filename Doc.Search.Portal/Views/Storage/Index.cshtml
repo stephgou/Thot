@@ -1,0 +1,15 @@
+﻿@model List<Doc.Search.Model.DocumentProperties>
+@{
+    ViewBag.Title = "Liste des fichiers du Storage";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2><text style="color:#2a6496">Liste des documents</text></h2>
+<ul>
+    @foreach (var item in Model)
+    {
+        <li>
+            <a href="@item.url">@item.name</a> (@item.size bytes)
+        </li>
+    }
+</ul>
+@Html.ActionLink("Télécharger un nouveau fichier", "UploadFile")
