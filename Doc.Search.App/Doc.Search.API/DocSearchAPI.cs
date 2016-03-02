@@ -55,7 +55,7 @@ namespace Doc.Search.App
         {
             this._identity = new IdentityOperations(this);
             this._search = new SearchOperations(this);
-            this._baseUri = new Uri("https://microsoft-apiappd2f514848d43426fa86cceccc6a94009.azurewebsites.net");
+            this._baseUri = new Uri(ThotSettings.API_APP);
         }
         
         /// <summary>
@@ -70,7 +70,7 @@ namespace Doc.Search.App
         {
             this._identity = new IdentityOperations(this);
             this._search = new SearchOperations(this);
-            this._baseUri = new Uri("https://microsoft-apiappd2f514848d43426fa86cceccc6a94009.azurewebsites.net");
+            this._baseUri = new Uri(ThotSettings.API_APP);
         }
         
         /// <summary>
@@ -88,7 +88,7 @@ namespace Doc.Search.App
         {
             this._identity = new IdentityOperations(this);
             this._search = new SearchOperations(this);
-            this._baseUri = new Uri("https://microsoft-apiappd2f514848d43426fa86cceccc6a94009.azurewebsites.net");
+            this._baseUri = new Uri(ThotSettings.API_APP);
         }
         
         /// <summary>

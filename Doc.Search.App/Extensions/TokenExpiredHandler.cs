@@ -8,14 +8,15 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
+using System.Net.Http.Headers;
 
 namespace Doc.Search.App.Extensions
 {
     class TokenExpiredHandler : DelegatingHandler
     {
-        private Func<Task<IAppServiceUser>> loginDelegate;
+        private Func<Task<string>> loginDelegate;
 
-        public TokenExpiredHandler(Func<Task<IAppServiceUser>> loginDelegate)
+        public TokenExpiredHandler(Func<Task<string>> loginDelegate)
         {
             this.loginDelegate = loginDelegate;
         }
@@ -30,14 +31,12 @@ namespace Doc.Search.App.Extensions
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
                 try
-                {
-                    var user = await this.loginDelegate();
+                {                    
+                    var accessToken = await this.loginDelegate();
 
                     clonedRequest = await CloneRequest(request);
 
-                    clonedRequest.Headers.Remove("X-ZUMO-AUTH");
-
-                    clonedRequest.Headers.Add("X-ZUMO-AUTH", user.AuthenticationToken);
+                    clonedRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
                     response = await base.SendAsync(clonedRequest, cancellationToken);
                 }
@@ -53,6 +52,7 @@ namespace Doc.Search.App.Extensions
         private async Task<HttpRequestMessage> CloneRequest(HttpRequestMessage request)
         {
             var result = new HttpRequestMessage(request.Method, request.RequestUri);
+            
             foreach (var header in request.Headers)
             {
                 result.Headers.Add(header.Key, header.Value);

@@ -1,6 +1,7 @@
 ﻿{
   "dependencies": {
     "Microsoft.Azure.AppService": "0.2.2-alpha",
+    "Microsoft.IdentityModel.Clients.ActiveDirectory": "2.22.302111727",
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.0.0",
     "Microsoft.Rest.ClientRuntime": "0.9.6"
   },

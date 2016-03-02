@@ -37,7 +37,7 @@ namespace Doc.Search.App.Views
             {
                 _hasLaunchedAuthentication = true;
                 await App.ViewModel.AuthenticateAsync();
-                App.ViewModel.GetUserName();
+                //App.ViewModel.GetUserName();
             }
         }
 

@@ -1,17 +1,29 @@
 ﻿using Doc.Search.App.Extensions;
 using Microsoft.Azure.AppService;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Windows.UI.Popups;
 
 namespace Doc.Search.App.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
+        // Création de l'URL d'accès au service d'authentification Azure AD
+        static string authority = String.Format(CultureInfo.InvariantCulture, 
+                                                ThotSettings.AAD_BASE_AUTH_URI, 
+                                                ThotSettings.AAD_TENANT_ID);
+
+        private AuthenticationContext authContext = null;
+
         private string _userName = "";
         public string UserName
         {
@@ -23,24 +35,45 @@ namespace Doc.Search.App.ViewModels
             }
         }
 
-        private IAppServiceClient _appServiceClient;
+        public string Token { get; set; }
+
+        //private IAppServiceClient _appServiceClient;
 
         public MainViewModel()
         {
-            _appServiceClient = new AppServiceClient(
-                                ThotSettings.GATEWAY,
-                                new TokenExpiredHandler(this.AuthenticateAsync)
-                                );
-        }
-        public async Task<IAppServiceUser> AuthenticateAsync()
-        {
-            await _appServiceClient.Logout();
+            authContext = new AuthenticationContext(authority);
+            Token = null;
+        }       
 
-            if (_appServiceClient.CurrentUser == null)
+        public async Task<string> AuthenticateAsync()
+        {
+            if (Token == null)
             {
-                await _appServiceClient.LoginAsync(ThotSettings.AUTH_PROVIDER, false);
+                // Déclenchement de l'authentification de l'utilisateur auprès du tenant Azure AD en utilisant l'URL de la
+                // ressource accédée (URL de l'API App Doc.Search.API) ainsi que les identifiants AAD (Client ID et URI de redirection)
+                // de l'application native
+                AuthenticationResult result = await authContext.AcquireTokenAsync(  ThotSettings.API_APP, 
+                                                                                    ThotSettings.APP_CLIENT_ID, 
+                                                                                    new Uri(ThotSettings.APP_REDIRECT_URI));
+
+                if (result.Status != AuthenticationStatus.Success)
+                {
+                    if (result.Error == "authentication_canceled")
+                    {
+                        // The user cancelled the sign-in, no need to display a message.
+                    }
+                    else
+                    {
+                        MessageDialog dialog = new MessageDialog(string.Format("If the error continues, please contact your administrator.\n\nError: {0}\n\nError Description:\n\n{1}", result.Error, result.ErrorDescription), "Sorry, an error occurred while signing you in.");
+                        await dialog.ShowAsync();
+                    }
+                    return string.Empty;
+                }
+
+                Token = result.AccessToken;
             }
-            return _appServiceClient.CurrentUser;
+
+            return Token;
         }
 
         private DocSearchAPI _docSearchAPI;
@@ -50,9 +83,9 @@ namespace Doc.Search.App.ViewModels
             {
                 if (_docSearchAPI == null)
                 {
-                    _docSearchAPI = _appServiceClient.CreateDocSearchAPI(
-                    new Uri(ThotSettings.API_APP),
-                    new TokenExpiredHandler(AuthenticateAsync)
+                    _docSearchAPI = new DocSearchAPI(
+                                            new Uri(ThotSettings.API_APP),
+                                            new TokenExpiredHandler(AuthenticateAsync)
                     );
                 }
                 return _docSearchAPI;
